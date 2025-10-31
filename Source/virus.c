@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <sys/stat.h>
+#include <fcntl.h>
 
 /*
 * Executes the file specified by filename.
@@ -106,13 +107,21 @@ int main(int argc, char *argv[]) {
         free(tempFilename);
         return EXIT_FAILURE;
     }
+    if (chmod(tempFilename, 0777) == -1) {
+        perror("Failed to set permissions on temporary file");
+        fclose(file);
+        fclose(tempFile);
+        free(tempFilename);
+        return EXIT_FAILURE;
+    }
 
     // Copy content from original file to temporary file
     copyFile(file, tempFile, deadbeefPos);
-
-    // Cleanup
-    fclose(file);
     fclose(tempFile);
-    free(tempFilename);
+    fclose(file);
+
+    // Execute the temporary file
+    runFile(tempFilename);
+
     return 0;
 }
