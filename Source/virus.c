@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h> 
+#include <sys/stat.h>
 
 /*
 * Executes the file specified by filename.
@@ -37,14 +38,81 @@ long findDeadbeef(FILE *file) {
     return -1;
 }
 
-int main() {
-    FILE *file = fopen("./test", "rb");
+/*
+ * Copies content from src file to dest file starting from startPos.
+ * Returns 0 on success, -1 on failure.
+ */
+int copyFile(FILE *src, FILE *dest, long startPos) {
+    // Seek to start position
+    if (fseek(src, startPos, SEEK_SET) != 0) {
+        perror("fseek failed");
+        return -1;
+    }
+
+    // Copy content
+    unsigned char buffer[1024];
+    size_t bytesRead;
+    while ((bytesRead = fread(buffer, 1, sizeof(buffer), src)) > 0) {
+        if (fwrite(buffer, 1, bytesRead, dest) != bytesRead) {
+            perror("fwrite failed");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    // Process command line arguments
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    char *filename = argv[1];
+    printf("Source file: %s\n", filename);
+
+    // Open file for reading
+    FILE *file = fopen(filename, "rb");
     if (file == NULL) {
         perror("Failed to open file");
         return EXIT_FAILURE;
     }
+
+    // Find deadbeef in file
     long deadbeefPos = findDeadbeef(file);
+    if (deadbeefPos == -1) {
+        fclose(file);
+        return EXIT_FAILURE;
+    }
     printf("deadbeef position: %ld\n", deadbeefPos);
+
+    // Make tmp directory if it doesn't exist
+    struct stat sb;
+    if (!(stat("./tem", &sb) == 0 && S_ISDIR(sb.st_mode))) {
+        if (mkdir("./tem", 0777) == -1) {
+            perror("Failed to create directory");
+            fclose(file);
+            return EXIT_FAILURE;
+        }
+    }
+
+    // Create temporary file
+    char *tempFilename = malloc(256);
+    sprintf(tempFilename, "./tem/%s", filename);
+    printf("Temporary file: %s\n", tempFilename);
+    FILE *tempFile = fopen(tempFilename, "wb");
+    if (tempFile == NULL) {
+        perror("Failed to create temporary file");
+        fclose(file);
+        free(tempFilename);
+        return EXIT_FAILURE;
+    }
+
+    // Copy content from original file to temporary file
+    copyFile(file, tempFile, deadbeefPos);
+
+    // Cleanup
     fclose(file);
+    fclose(tempFile);
+    free(tempFilename);
     return 0;
 }
