@@ -26,7 +26,8 @@ Virus: $(SRCDIR)/virus.c
 	$(CC) $(CFLAGS) -o Virus $(SRCDIR)/virus.c $(LDFLAGS)
 
 clean:
-	rm -f ./victim1 ./victim2 ./victim3 Host Virus
+	rm -f ./victim1 ./victim2 ./victim3 ./seed Host Virus
+	rm -r tem
 
 # IPCHECK_SRC := $(SRCDIR)/IPCheck.c
 # RBFGEN_SRC := $(SRCDIR)/RBFGen.c
