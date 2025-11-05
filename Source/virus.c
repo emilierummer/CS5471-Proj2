@@ -8,8 +8,8 @@
 * Executes the file specified by filename.
 * If execution fails, prints an error and exits.
 */
-void runFile(const char *filename) {
-    execv(filename, NULL);
+void runFile(const char *filename, char *const args[]) {
+    execv(filename, args);
     // If it returns, execv failed
     perror("execv failed");
     exit(EXIT_FAILURE);
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
     fclose(tempFile);
 
     // Execute the temp file
-    runFile(tempFilename);
+    runFile(tempFilename, &argv[1]);
 
     return EXIT_SUCCESS;
 }
