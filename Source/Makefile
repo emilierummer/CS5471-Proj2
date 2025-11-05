@@ -4,7 +4,7 @@ LDFLAGS :=
 
 SRCDIR := .
 
-all: ResetVictims ResetSeed Host Virus temp
+all: ResetVictims ResetSeed Host Virus
 
 ResetVictims:
 	rm -f ./victim1 ./victim2 ./victim3
@@ -26,23 +26,4 @@ Virus: $(SRCDIR)/virus.c
 	$(CC) $(CFLAGS) -o Virus $(SRCDIR)/virus.c $(LDFLAGS)
 
 clean:
-	rm -rf ./victim1 ./victim2 ./victim3 Host Virus tem
-
-temp:
-	rm -f concatBin
-	rm -f temp_executable
-	rm -f test
-	$(CC) $(CFLAGS) -o test $(SRCDIR)/test.c $(LDFLAGS)
-
-printSizes:
-	@echo "Sizes of files:"
-	@ls -l Virus Host seed test concatBin temp_executable
-
-makeBins:
-	@echo "Creating hex dumps of files:"
-	xxd -g 1 Virus > Virus.hex
-	xxd -g 1 Host > Host.hex
-	xxd -g 1 seed > seed.hex
-	xxd -g 1 test > test.hex
-	xxd -g 1 concatBin > concatBin.hex
-	xxd -g 1 temp_executable > temp_executable.hex
+	rm -rf victim1 victim2 victim3 Host Virus seed tem
