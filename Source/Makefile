@@ -4,7 +4,7 @@ LDFLAGS :=
 
 SRCDIR := .
 
-all: ResetVictims ResetSeed Host Virus
+all: ResetVictims ResetSeed Host Virus temp
 
 ResetVictims:
 	rm -f ./victim1 ./victim2 ./victim3
@@ -28,24 +28,21 @@ Virus: $(SRCDIR)/virus.c
 clean:
 	rm -f ./victim1 ./victim2 ./victim3 Host Virus
 
-# IPCHECK_SRC := $(SRCDIR)/IPCheck.c
-# RBFGEN_SRC := $(SRCDIR)/RBFGen.c
-# HEADERS := $(SRCDIR)/HashUtils.h
-# HASHUTILS_SRC := $(SRCDIR)/HashUtils.c
-# HASHUTILS_OBJ := HashUtils.o
+temp:
+	rm -f concatBin
+	rm -f temp_executable
+	rm -f test
+	$(CC) $(CFLAGS) -o test $(SRCDIR)/test.c $(LDFLAGS)
 
-# all: IPCheck RBFGen
+printSizes:
+	@echo "Sizes of files:"
+	@ls -l Virus Host seed test concatBin temp_executable
 
-
-# IPCheck: $(IPCHECK_SRC) $(HEADERS)
-# 	$(CC) $(CFLAGS) -c $(HASHUTILS_SRC) -o $(HASHUTILS_OBJ)
-# 	$(CC) $(CFLAGS) -o IPCheck $(IPCHECK_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
-
-# # RBFGen depends on OpenSSL for SHA256
-
-# RBFGen: $(RBFGEN_SRC) $(HEADERS)
-# 	$(CC) $(CFLAGS) -c $(HASHUTILS_SRC) -o $(HASHUTILS_OBJ)
-# 	$(CC) $(CFLAGS) -o RBFGen $(RBFGEN_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
-
-# clean:
-# 	rm -f IPCheck RBFGen HashUtils.o
+makeBins:
+	@echo "Creating hex dumps of files:"
+	xxd -g 1 Virus > Virus.hex
+	xxd -g 1 Host > Host.hex
+	xxd -g 1 seed > seed.hex
+	xxd -g 1 test > test.hex
+	xxd -g 1 concatBin > concatBin.hex
+	xxd -g 1 temp_executable > temp_executable.hex
