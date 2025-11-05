@@ -11,7 +11,7 @@ ResetVictims:
 	cp /bin/ls ./victim1
 	cp /usr/bin/wc ./victim2
 	cp /usr/bin/file ./victim3
-	chmod ugo-x ./victim1 ./victim2 ./victim3
+# 	chmod ugo-x ./victim1 ./victim2 ./victim3
 
 ResetSeed: Virus Host
 	rm -f seed
@@ -26,7 +26,7 @@ Virus: $(SRCDIR)/virus.c
 	$(CC) $(CFLAGS) -o Virus $(SRCDIR)/virus.c $(LDFLAGS)
 
 clean:
-	rm -f ./victim1 ./victim2 ./victim3 Host Virus
+	rm -rf ./victim1 ./victim2 ./victim3 Host Virus tem
 
 temp:
 	rm -f concatBin
