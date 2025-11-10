@@ -30,4 +30,4 @@ Virus: $(SRCDIR)/virus.c
 	$(CC) $(CFLAGS) -o Virus $(SRCDIR)/virus.c $(LDFLAGS)
 
 clean:
-	rm -rf victim1 victim2 victim3 Host Virus seed tem
+	rm -rf victim1 victim2 victim3 Host Virus seed tem host1 host2 host3 host4
