@@ -11,7 +11,7 @@ ResetVictims:
 	cp /bin/ls ./victim1
 	cp /usr/bin/wc ./victim2
 	cp /usr/bin/file ./victim3
-# 	chmod ugo-x ./victim1 ./victim2 ./victim3
+ 	chmod ugo-x ./victim1 ./victim2 ./victim3
 	cp /bin/ls ./host1
 	cp /bin/ls ./host2
 	cp /bin/ls ./host3
